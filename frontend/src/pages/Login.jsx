@@ -4,7 +4,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { Container, Row, Col, Form, Button, Alert } from 'react-bootstrap';
 import { motion, AnimatePresence } from 'framer-motion';
-import axios from 'axios';
+import axios from '../api/axiosInstance';
 import { useNavigate, Link } from 'react-router-dom';
 import Loader from '../components/Loader';
 
@@ -46,10 +46,10 @@ export default function Login() {
   const onSubmit = async (data) => {
     setLoading(true);
     try {
-      const res = await axios.post('http://localhost:3002/auth/login', {
+      const res = await axios.post('/auth/login', {
         email: data.email,
         password: data.password
-      }, { withCredentials: true });
+      });
 
       if (res.data.status === 'success') {
         localStorage.setItem('user', JSON.stringify(res.data.user));

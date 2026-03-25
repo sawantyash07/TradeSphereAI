@@ -7,7 +7,7 @@ import * as yup from 'yup';
 import { FaPlus, FaMinus, FaChevronRight } from 'react-icons/fa';
 import Watchlist from '../components/Watchlist';
 
-import axios from 'axios';
+import axios from '../api/axiosInstance';
 
 
 // Validation schema for Adding Funds
@@ -64,7 +64,7 @@ export default function Dashboard() {
 
   const refreshData = () => {
     // Fetch Holdings
-    axios.get('http://localhost:3002/allHoldings')
+    axios.get('/allHoldings')
       .then(res => {
         const formatted = res.data.map((item, idx) => ({
           id: item._id || idx,
@@ -79,7 +79,7 @@ export default function Dashboard() {
       .catch(err => console.error(err));
 
     // Fetch Positions
-    axios.get('http://localhost:3002/allPositions')
+    axios.get('/allPositions')
       .then(res => {
         const formatted = res.data.map((item, idx) => ({
           id: item._id || idx,
@@ -105,7 +105,7 @@ export default function Dashboard() {
   }, []);
 
   const fetchFunds = () => {
-    axios.get('http://localhost:3002/allFunds')
+    axios.get('/allFunds')
       .then(res => setFundData(res.data))
       .catch(err => console.error(err));
   };
@@ -129,7 +129,7 @@ export default function Dashboard() {
 
   const onAddFunds = async (data) => {
     try {
-      await axios.post('http://localhost:3002/allFunds/deposit', { amount: data.amount });
+      await axios.post('/allFunds/deposit', { amount: data.amount });
       showFlash(`Successfully deposited ₹${data.amount}`, 'success');
       setShowAddFunds(false);
       resetAdd();
@@ -141,7 +141,7 @@ export default function Dashboard() {
 
   const onWithdraw = async (data) => {
     try {
-      await axios.post('http://localhost:3002/allFunds/withdraw', { amount: data.amount });
+      await axios.post('/allFunds/withdraw', { amount: data.amount });
       showFlash(`Withdrawal request for ₹${data.amount} submitted successfully`, 'info');
       setShowWithdraw(false);
       resetWithdraw();
@@ -156,7 +156,7 @@ export default function Dashboard() {
         const qty = prompt(`Enter quantity of ${stock.symbol} you want to Buy:`, "1");
         if (!qty || isNaN(qty) || qty <= 0) return;
         
-        const res = await axios.post('http://localhost:3002/trade/buy', {
+        const res = await axios.post('/trade/buy', {
             name: stock.name,
             symbol: stock.symbol,
             qty: Number(qty),
@@ -178,7 +178,7 @@ export default function Dashboard() {
         const qty = prompt(`Enter quantity of ${stock.symbol} you want to Sell:`, "1");
         if (!qty || isNaN(qty) || qty <= 0) return;
 
-        const res = await axios.post('http://localhost:3002/trade/sell', {
+        const res = await axios.post('/trade/sell', {
             name: stock.name,
             symbol: stock.symbol,
             qty: Number(qty),

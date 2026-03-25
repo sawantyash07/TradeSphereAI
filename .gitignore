@@ -29,6 +29,8 @@ pnpm-debug.log*
 .env.*.local
 backend/.env
 backend/.env.bak
+frontend/.env
+frontend/.env.local
 Mongo Credentials.txt
 
 # Personal/Miscellaneous files

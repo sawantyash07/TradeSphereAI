@@ -4,7 +4,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { Container, Row, Col, Form, Button, Alert } from 'react-bootstrap';
 import { motion, AnimatePresence } from 'framer-motion';
-import axios from 'axios';
+import axios from '../api/axiosInstance';
 import { useNavigate, Link } from 'react-router-dom';
 import Loader from '../components/Loader';
 
@@ -54,7 +54,7 @@ export default function Signup() {
   const onSubmit = async (data) => {
     setLoading(true);
     try {
-      const res = await axios.post('http://localhost:3002/auth/signup', {
+      const res = await axios.post('/auth/signup', {
         firstName: data.firstName,
         lastName: data.lastName,
         email: data.email,
