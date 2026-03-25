@@ -1,0 +1,219 @@
+@import 'bootstrap/dist/css/bootstrap.min.css';
+
+:root {
+  --primary-color: #0f172a;
+  --secondary-color: #38bdf8;
+  --accent-color: #f59e0b;
+  --text-light: #f8fafc;
+  --text-dark: #1e293b;
+  --glass-bg: rgba(15, 23, 42, 0.6);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+body, html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--primary-color);
+  color: var(--text-light);
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+/* Background 3D Canvas Canvas */
+.canvas-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  pointer-events: none; /* Let clicks pass through to content */
+}
+
+/* Glassmorphism Generic Class */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  box-shadow: var(--box-shadow);
+  padding: 2rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.glass-panel:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.45);
+}
+
+/* Custom Navbar */
+.custom-navbar {
+  background: rgba(15, 23, 42, 0.8) !important;
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.custom-navbar .nav-link {
+  color: var(--text-light) !important;
+  font-weight: 500;
+  margin: 0 0.5rem;
+  transition: color 0.3s;
+}
+
+.custom-navbar .nav-link:hover {
+  color: var(--secondary-color) !important;
+}
+
+/* Typography & Links */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.text-gradient {
+  background: linear-gradient(90deg, #38bdf8 0%, #818cf8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.btn-primary-custom {
+  background: linear-gradient(90deg, #38bdf8 0%, #818cf8 100%);
+  border: none;
+  border-radius: 8px;
+  padding: 10px 24px;
+  color: #fff;
+  font-weight: 600;
+  transition: transform 0.3s, filter 0.3s;
+}
+
+.btn-primary-custom:hover {
+  transform: scale(1.05);
+  filter: brightness(1.1);
+  color: #fff;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.8s ease-out forwards;
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-15px); }
+  100% { transform: translateY(0px); }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+/* Specific component styles */
+.section-padding {
+  padding: 100px 0;
+}
+
+.hero-section {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+/* Form Styles */
+.custom-input {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--glass-border);
+  color: white;
+  border-radius: 8px;
+}
+.custom-input:focus {
+  background: rgba(255,255,255,0.1);
+  border-color: var(--secondary-color);
+  color: white;
+  box-shadow: none;
+}
+
+/* Footer Styles */
+.footer-link {
+  transition: all 0.3s ease;
+  position: relative;
+  display: inline-block;
+}
+
+.footer-link:hover {
+  color: var(--secondary-color) !important;
+  transform: translateX(5px);
+}
+
+.underline-gradient {
+  height: 2px;
+  width: 30px;
+  background: linear-gradient(90deg, #38bdf8 0%, #818cf8 100%);
+  margin-top: 5px;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.hover-links:hover .underline-gradient {
+  width: 50px;
+}
+
+.hover-scale {
+  transition: transform 0.3s ease;
+}
+.hover-scale:hover {
+  transform: scale(1.1);
+}
+
+.related-links a {
+  transition: color 0.3s ease;
+}
+.related-links a:hover {
+  color: var(--accent-color) !important;
+}
+
+/* Global Text Readability Fixes */
+.text-muted {
+  color: #e2e8f0 !important; /* Very bright slate instead of dark grey */
+}
+
+.text-secondary {
+  color: #cbd5e1 !important;
+}
+
+.text-dark {
+  color: #f1f5f9 !important; /* Force text-dark to be light on dark backgrounds */
+}
+
+/* Add a subtle text shadow to typography inside glass panels to make text stand out perfectly against dynamic backgrounds */
+.glass-panel p, 
+.glass-panel h1, 
+.glass-panel h2, 
+.glass-panel h3, 
+.glass-panel h4, 
+.glass-panel h5, 
+.glass-panel h6, 
+.glass-panel li, 
+.glass-panel label, 
+.glass-panel td, 
+.glass-panel th,
+.glass-panel span {
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+}
