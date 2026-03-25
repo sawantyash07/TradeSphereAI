@@ -13,7 +13,7 @@ const initialWatchListData = [
   { id: 7, symbol: 'META', name: 'Meta Platforms', price: '0', changeNum: '0', changePct: '0%', isUp: false }
 ];
 
-import axios from 'axios';
+import axios from '../api/axiosInstance';
 
 export default function Watchlist({ onBuy, onSell }) {
   const [hoveredStockId, setHoveredStockId] = useState(null);
@@ -23,7 +23,7 @@ export default function Watchlist({ onBuy, onSell }) {
     const fetchQuotes = async () => {
         const updatedData = await Promise.all(watchListData.map(async (stock) => {
             try {
-                const res = await axios.get(`http://localhost:3002/finnhub/quote?symbol=${stock.symbol}`);
+                const res = await axios.get(`/finnhub/quote?symbol=${stock.symbol}`);
                 if (res.data && res.data.c) {
                     return {
                         ...stock,

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FaPlus, FaMinus, FaChevronRight } from 'react-icons/fa';
-import axios from 'axios';
+import axios from '../api/axiosInstance';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -31,7 +31,7 @@ export default function Funds() {
   }, []);
 
   const fetchFunds = () => {
-    axios.get('http://localhost:3002/allFunds')
+    axios.get('/allFunds')
       .then(res => setFundData(res.data))
       .catch(err => console.error("Error fetching funds:", err));
   };
@@ -46,7 +46,7 @@ export default function Funds() {
 
   const onDeposit = async (data) => {
     try {
-      const res = await axios.post('http://localhost:3002/allFunds/deposit', { amount: data.amount });
+      const res = await axios.post('/allFunds/deposit', { amount: data.amount });
       setFundData(prev => ({
         ...prev,
         ...res.data,
@@ -62,7 +62,7 @@ export default function Funds() {
 
   const onWithdraw = async (data) => {
     try {
-      const res = await axios.post('http://localhost:3002/allFunds/withdraw', { amount: data.amount });
+      const res = await axios.post('/allFunds/withdraw', { amount: data.amount });
       setFundData(prev => ({
         ...prev,
         ...res.data,

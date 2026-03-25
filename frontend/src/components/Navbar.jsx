@@ -3,7 +3,7 @@ import { Navbar, Nav, Container, Dropdown } from 'react-bootstrap';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AccountCircle, Logout, Login as LoginIcon, PersonAdd } from '@mui/icons-material';
-import axios from 'axios';
+import axios from '../api/axiosInstance';
 import Loader from './Loader';
 
 export default function AppNavbar() {
@@ -26,7 +26,7 @@ export default function AppNavbar() {
   const handleLogout = async () => {
     setLoading(true);
     try {
-      await axios.post('http://localhost:3002/auth/logout', {}, { withCredentials: true });
+      await axios.post('/auth/logout');
       localStorage.removeItem('user');
       setUser(null);
       // Small delay for the modern feel

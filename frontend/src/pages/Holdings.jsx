@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import Watchlist from '../components/Watchlist';
-import axios from 'axios';
+import axios from '../api/axiosInstance';
 import { FaShoppingCart, FaExchangeAlt } from 'react-icons/fa';
 import { Chart as ChartJS, ArcElement, Tooltip as ChartTooltip, Legend } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
@@ -43,7 +43,7 @@ export default function Holdings() {
   }, []);
 
   const fetchHoldings = () => {
-    axios.get('http://localhost:3002/allHoldings')
+    axios.get('/allHoldings')
       .then(async (res) => {
         const formattedData = res.data.map((item, index) => ({
           id: item._id || index,

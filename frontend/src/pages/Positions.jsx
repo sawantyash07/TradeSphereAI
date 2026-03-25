@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Badge, Button, Modal, Form, Alert } from 'react-bootstrap';
 import { motion, AnimatePresence } from 'framer-motion';
 import Watchlist from '../components/Watchlist';
-import axios from 'axios';
+import axios from '../api/axiosInstance';
 import { FaExchangeAlt, FaShoppingCart } from 'react-icons/fa';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -35,7 +35,7 @@ export default function Positions() {
   }, []);
 
   const fetchPositions = () => {
-    axios.get('http://localhost:3002/allPositions')
+    axios.get('/allPositions')
       .then(async res => {
         const formatted = res.data.map((item, idx) => ({
           id: item._id || idx,
