@@ -53,7 +53,7 @@ export default function Login() {
 
       if (res.data.status === 'success') {
         localStorage.setItem('user', JSON.stringify(res.data.user));
-        // Small delay for the modern feel
+        showFlash('Login successful! Redirecting...', 'success');
         setTimeout(() => {
           setLoading(false);
           navigate('/dashboard');
@@ -62,7 +62,8 @@ export default function Login() {
       }
     } catch (err) {
       setLoading(false);
-      showFlash(err.response?.data?.message || 'Login failed. Check credentials.', 'danger');
+      const errorMsg = err.response?.data?.message || 'Login failed. Please check your credentials.';
+      showFlash(errorMsg, 'danger');
     }
   };
 

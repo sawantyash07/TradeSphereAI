@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const https = require('https');
+const fs = require('fs');
+const path = require('path');
+const yaml = require('js-yaml');
 
 const FINNHUB_API_KEY = 'd719em1r01qot5jcjd30d719em1r01qot5jcjd3g';
 const cache = {};
@@ -43,6 +46,36 @@ router.get('/quote', async (req, res) => {
   } catch (error) {
     console.error('Finnhub API error:', error);
     res.status(500).json({ error: 'Failed to fetch data', details: error.message });
+  }
+});
+
+// GET symbols list from YAML
+router.get('/symbols', (req, res) => {
+  try {
+    const yamlPath = path.join(__dirname, '../data/symbols.yaml');
+    if (!fs.existsSync(yamlPath)) return res.json({ symbols: [] });
+    
+    const fileContent = fs.readFileSync(yamlPath, 'utf8');
+    const data = yaml.load(fileContent);
+    res.json(data);
+  } catch (error) {
+    console.error('Error reading symbols.yaml:', error);
+    res.status(500).json({ error: 'Failed to read symbols data' });
+  }
+});
+
+// GET daily snapshot (from YAML updated every 24h)
+router.get('/daily', (req, res) => {
+  try {
+    const yamlPath = path.join(__dirname, '../data/stocks.yaml');
+    if (!fs.existsSync(yamlPath)) return res.json({ stocks: [] });
+    
+    const fileContent = fs.readFileSync(yamlPath, 'utf8');
+    const data = yaml.load(fileContent);
+    res.json(data);
+  } catch (error) {
+    console.error('Error reading stocks.yaml:', error);
+    res.status(500).json({ error: 'Failed to read daily data' });
   }
 });
 

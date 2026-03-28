@@ -20,6 +20,7 @@ export default function Funds() {
   const [showAdd, setShowAdd] = useState(false);
   const [showWithdraw, setShowWithdraw] = useState(false);
   const [fundData, setFundData] = useState(null);
+  const [history, setHistory] = useState([]);
   const [flashMessages, setFlashMessages] = useState([]);
 
   const { register, handleSubmit, formState: { errors }, reset } = useForm({
@@ -28,12 +29,19 @@ export default function Funds() {
 
   useEffect(() => {
     fetchFunds();
+    fetchHistory();
   }, []);
 
   const fetchFunds = () => {
     axios.get('/allFunds')
       .then(res => setFundData(res.data))
       .catch(err => console.error("Error fetching funds:", err));
+  };
+
+  const fetchHistory = () => {
+    axios.get('/allFunds/history')
+      .then(res => setHistory(res.data))
+      .catch(err => console.error("Error fetching history:", err));
   };
 
   const showFlash = (message, variant = 'info') => {
@@ -55,6 +63,7 @@ export default function Funds() {
       showFlash(`Successfully deposited ₹${data.amount}`, 'success');
       setShowAdd(false);
       reset();
+      fetchHistory(); // Refresh history
     } catch (err) {
       showFlash(err.response?.data?.message || 'Deposit failed', 'danger');
     }
@@ -71,6 +80,7 @@ export default function Funds() {
       showFlash(`Successfully initiated withdrawal of ₹${data.amount}`, 'success');
       setShowWithdraw(false);
       reset();
+      fetchHistory(); // Refresh history
     } catch (err) {
       showFlash(err.response?.data?.message || 'Withdrawal failed', 'danger');
     }
@@ -190,6 +200,47 @@ export default function Funds() {
 
               </Col>
             </Row>
+
+            {/* Transaction History Section */}
+            <div className="mt-5 pt-5 border-top" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
+              <h4 className="text-light mb-4 d-flex align-items-center gap-2">
+                <FaChevronRight size={16} className="text-primary" />
+                Transaction History
+                <Badge bg="secondary" pill style={{ fontSize: '0.75rem' }}>{history.length}</Badge>
+              </h4>
+
+              <div className="custom-data-grid">
+                <div className="row text-muted small fw-bold text-uppercase border-bottom pb-2 mb-2 g-0" style={{ borderColor: 'rgba(255,255,255,0.1) !important' }}>
+                  <div className="col-3">Date</div>
+                  <div className="col-3">Type</div>
+                  <div className="col-3 text-end">Amount</div>
+                  <div className="col-3 text-end">Status</div>
+                </div>
+
+                {history.length === 0 ? (
+                  <div className="text-center py-5 text-muted">No transactions found.</div>
+                ) : (
+                  history.map(tx => (
+                    <div key={tx._id} className="row align-items-center py-3 border-bottom g-0 hover-bg" style={{ borderColor: 'rgba(255,255,255,0.05) !important' }}>
+                      <div className="col-3 text-light-50 small">
+                        {new Date(tx.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                      </div>
+                      <div className="col-3">
+                        <Badge bg={tx.type === 'DEPOSIT' ? 'success' : 'warning'} style={{ minWidth: '90px' }}>
+                          {tx.type}
+                        </Badge>
+                      </div>
+                      <div className={`col-3 text-end fw-bold ${tx.type === 'DEPOSIT' ? 'text-success' : 'text-danger'}`}>
+                        {tx.type === 'DEPOSIT' ? '+' : '-'}₹{tx.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                      </div>
+                      <div className="col-3 text-end">
+                        <span className="text-success small fw-bold">● {tx.status}</span>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
           </motion.div>
         </Col>
       </Row>
@@ -240,6 +291,8 @@ export default function Funds() {
       <style dangerouslySetInnerHTML={{__html: `
         .custom-input { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); color: white; }
         .custom-input:focus { background: rgba(0,0,0,0.3); border-color: rgba(255,255,255,0.2); color: white; box-shadow: none; }
+        .hover-bg:hover { background: rgba(255,255,255,0.02); }
+        .text-light-50 { color: rgba(255,255,255,0.5); }
       `}} />
     </Container>
   );

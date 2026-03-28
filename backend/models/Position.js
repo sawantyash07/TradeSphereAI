@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const positionSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   product: { type: String, required: true },
   name: { type: String, required: true },
   symbol: { type: String, required: true },

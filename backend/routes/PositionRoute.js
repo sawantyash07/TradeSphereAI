@@ -1,25 +1,17 @@
 const express = require('express');
 const router = express.Router();
 const Position = require('../models/Position');
+const { isAuthenticated } = require('../middleware/auth');
 
-// GET all positions
-router.get('/', async (req, res) => {
+// GET user-specific positions
+router.get('/', isAuthenticated, async (req, res) => {
   try {
-    let positions = await Position.find({});
+    const userId = req.user._id;
+    let positions = await Position.find({ userId });
     
     if (positions.length > 0 && !positions[0].symbol) {
-        await Position.deleteMany({});
+        await Position.deleteMany({ userId });
         positions = [];
-    }
-
-    // If empty, insert dummy data automatically
-    if (positions.length === 0) {
-      const dummyData = [
-        { product: 'MIS', name: 'Nvidia Corp', symbol: 'NVDA', qty: 50, avg: 150.5, price: 180.2, net: '+20%', day: '+20%', isRealized: false },
-        { product: 'MIS', name: 'Google Alpha', symbol: 'GOOGL', qty: 15, avg: 220.0, price: 195.5, net: '-10%', day: '-10%', isRealized: false }
-      ];
-      await Position.insertMany(dummyData);
-      positions = await Position.find({});
     }
 
     res.json(positions);
@@ -30,9 +22,12 @@ router.get('/', async (req, res) => {
 });
 
 // POST to add new position
-router.post('/', async (req, res) => {
+router.post('/', isAuthenticated, async (req, res) => {
   try {
-    const newPosition = new Position(req.body);
+    const newPosition = new Position({
+        ...req.body,
+        userId: req.user._id
+    });
     await newPosition.save();
     res.json({ status: 'success', data: newPosition });
   } catch (error) {

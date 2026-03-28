@@ -17,11 +17,39 @@ import axios from '../api/axiosInstance';
 
 export default function Watchlist({ onBuy, onSell }) {
   const [hoveredStockId, setHoveredStockId] = useState(null);
-  const [watchListData, setWatchListData] = useState(initialWatchListData);
+  const [watchListData, setWatchListData] = useState([]);
 
   React.useEffect(() => {
-    const fetchQuotes = async () => {
-        const updatedData = await Promise.all(watchListData.map(async (stock) => {
+    const initializeWatchlist = async () => {
+      try {
+        // 1. Fetch Symbols from YAML
+        const symbolsRes = await axios.get('/finnhub/symbols');
+        const symbols = symbolsRes.data.symbols || [];
+        
+        // 2. Map into initial state
+        const initial = symbols.map((sym, idx) => ({
+          id: idx,
+          symbol: sym,
+          name: sym, // Initially use symbol name
+          price: '0.00',
+          changePct: '0.00%',
+          isUp: true
+        }));
+        
+        setWatchListData(initial);
+        
+        // 3. Immediately trigger first poll
+        await fetchQuotes(initial);
+      } catch (e) {
+        console.error("Watchlist initialization failed", e);
+      }
+    };
+
+    const fetchQuotes = async (currentData) => {
+        const listToUpdate = currentData || watchListData;
+        if (listToUpdate.length === 0) return;
+
+        const updatedData = await Promise.all(listToUpdate.map(async (stock) => {
             try {
                 const res = await axios.get(`/finnhub/quote?symbol=${stock.symbol}`);
                 if (res.data && res.data.c) {
@@ -33,15 +61,15 @@ export default function Watchlist({ onBuy, onSell }) {
                     };
                 }
             } catch (e) {
-                console.error("Error fetching watch list quote", e);
+                console.error(`Error fetching ${stock.symbol} quote`, e);
             }
             return stock;
         }));
         setWatchListData(updatedData);
     };
 
-    fetchQuotes();
-    const interval = setInterval(fetchQuotes, 30000); // Poll every 30s
+    initializeWatchlist();
+    const interval = setInterval(() => fetchQuotes(), 30000); // Poll every 30s
     return () => clearInterval(interval);
   }, []);
 

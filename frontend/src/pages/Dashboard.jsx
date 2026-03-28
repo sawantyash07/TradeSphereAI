@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Button, Badge, Alert, Modal, Form } from 'react-bootstrap';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useForm } from 'react-hook-form';
@@ -62,6 +63,8 @@ export default function Dashboard() {
   const [fundData, setFundData] = useState({ availableMargin: 0, usedMargin: 0, availableCash: 0 });
   const [user, setUser] = useState(null);
 
+  const navigate = useNavigate();
+
   const refreshData = () => {
     // Fetch Holdings
     axios.get('/allHoldings')
@@ -100,9 +103,13 @@ export default function Dashboard() {
 
   React.useEffect(() => {
     const storedUser = localStorage.getItem('user');
-    if (storedUser) setUser(JSON.parse(storedUser));
+    if (!storedUser) {
+        navigate('/login');
+        return;
+    }
+    setUser(JSON.parse(storedUser));
     refreshData();
-  }, []);
+  }, [navigate]);
 
   const fetchFunds = () => {
     axios.get('/allFunds')

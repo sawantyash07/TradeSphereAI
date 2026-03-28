@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const fundSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   availableMargin: { type: Number, default: 450000.00 },
   usedMargin: { type: Number, default: 120500.00 },
   availableCash: { type: Number, default: 329500.00 },

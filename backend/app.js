@@ -61,6 +61,10 @@ function createApp() {
   app.use('/auth', authRoute);
   app.use('/trade', tradeRoute);
 
+  // Initialize daily cron jobs
+  const { initCronJobs } = require('./utils/cronJobs');
+  initCronJobs();
+
   app.get('/', (req, res) => {
     res.send('TradeSphere AI Backend Server is Running');
   });

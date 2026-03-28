@@ -4,16 +4,17 @@ const Order = require('../models/Order');
 const Holding = require('../models/Holding');
 const Position = require('../models/Position');
 const Fund = require('../models/Fund');
+const { isAuthenticated } = require('../middleware/auth');
 
-router.post('/buy', async (req, res) => {
+router.post('/buy', isAuthenticated, async (req, res) => {
   const { name, symbol, qty, price, type } = req.body;
   const totalAmount = qty * price;
+  const userId = req.user._id;
 
   try {
-    let fund = await Fund.findOne({});
+    let fund = await Fund.findOne({ userId });
     if (!fund) {
-      fund = new Fund();
-      await fund.save();
+      return res.status(404).json({ status: 'error', message: 'User funds not found' });
     }
 
     if (fund.availableMargin < totalAmount) {
@@ -21,11 +22,11 @@ router.post('/buy', async (req, res) => {
     }
 
     // 1. Create Order
-    const newOrder = new Order({ name, symbol, qty, price, mode: 'BUY', status: 'COMPLETE' });
+    const newOrder = new Order({ userId, name, symbol, qty, price, mode: 'BUY', status: 'COMPLETE' });
     await newOrder.save();
 
     // 2. Update/Create Holding
-    let holding = await Holding.findOne({ symbol });
+    let holding = await Holding.findOne({ userId, symbol });
     if (holding) {
       const newTotalQty = holding.qty + qty;
       const newAvg = ((holding.avg * holding.qty) + (price * qty)) / newTotalQty;
@@ -35,14 +36,14 @@ router.post('/buy', async (req, res) => {
       await holding.save();
     } else {
       const newHolding = new Holding({
-        name, symbol, qty, avg: price, price,
+        userId, name, symbol, qty, avg: price, price,
         net: '0', day: '0%'
       });
       await newHolding.save();
     }
 
     // 3. Update/Create Position (Long Term or Intraday)
-    let position = await Position.findOne({ symbol, product: type || 'CNC' });
+    let position = await Position.findOne({ userId, symbol, product: type || 'CNC' });
     if (position) {
       const newTotalQty = position.qty + qty;
       const newAvg = ((position.avg * position.qty) + (price * qty)) / newTotalQty;
@@ -52,6 +53,7 @@ router.post('/buy', async (req, res) => {
       await position.save();
     } else {
       const newPos = new Position({
+        userId,
         product: type || 'CNC',
         name, symbol, qty, avg: price, price,
         net: '0%', day: '0%', isRealized: false
@@ -72,19 +74,20 @@ router.post('/buy', async (req, res) => {
   }
 });
 
-router.post('/sell', async (req, res) => {
+router.post('/sell', isAuthenticated, async (req, res) => {
   const { name, symbol, qty, price, type } = req.body;
   const totalAmount = qty * price;
+  const userId = req.user._id;
 
   try {
     // 1. Check if user has holding
-    let holding = await Holding.findOne({ symbol });
+    let holding = await Holding.findOne({ userId, symbol });
     if (!holding || holding.qty < qty) {
       return res.status(400).json({ status: 'error', message: 'Insufficient Shares in Holding' });
     }
 
     // 2. Create Order
-    const newOrder = new Order({ name, symbol, qty, price, mode: 'SELL', status: 'COMPLETE' });
+    const newOrder = new Order({ userId, name, symbol, qty, price, mode: 'SELL', status: 'COMPLETE' });
     await newOrder.save();
 
     // 3. Update Holding
@@ -96,7 +99,7 @@ router.post('/sell', async (req, res) => {
     }
 
     // 4. Update Position
-    let position = await Position.findOne({ symbol, product: type || 'CNC' });
+    let position = await Position.findOne({ userId, symbol, product: type || 'CNC' });
     if (position) {
       position.qty -= qty;
       if (position.qty === 0) {
@@ -107,7 +110,7 @@ router.post('/sell', async (req, res) => {
     }
 
     // 5. Update Funds
-    let fund = await Fund.findOne({});
+    let fund = await Fund.findOne({ userId });
     if (fund) {
       fund.availableMargin += totalAmount;
       fund.availableCash += totalAmount;

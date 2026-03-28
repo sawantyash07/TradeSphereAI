@@ -16,6 +16,7 @@ import Holdings from './pages/Holdings';
 import Positions from './pages/Positions';
 import Funds from './pages/Funds';
 import Apps from './pages/Apps';
+import ProtectedRoute from './components/ProtectedRoute';
 import Scene from './components/Scene';
 import NotFound from './pages/NotFound';
 
@@ -44,12 +45,12 @@ function AnimatedRoutes() {
         <Route path="/support" element={<PageWrapper><Support /></PageWrapper>} />
         <Route path="/signup" element={<PageWrapper><Signup /></PageWrapper>} />
         <Route path="/login" element={<PageWrapper><Login /></PageWrapper>} />
-        <Route path="/dashboard" element={<PageWrapper><Dashboard /></PageWrapper>} />
-        <Route path="/orders" element={<PageWrapper><Orders /></PageWrapper>} />
-        <Route path="/holdings" element={<PageWrapper><Holdings /></PageWrapper>} />
-        <Route path="/positions" element={<PageWrapper><Positions /></PageWrapper>} />
-        <Route path="/funds" element={<PageWrapper><Funds /></PageWrapper>} />
-        <Route path="/apps" element={<PageWrapper><Apps /></PageWrapper>} />
+        <Route path="/dashboard" element={<ProtectedRoute><PageWrapper><Dashboard /></PageWrapper></ProtectedRoute>} />
+        <Route path="/orders" element={<ProtectedRoute><PageWrapper><Orders /></PageWrapper></ProtectedRoute>} />
+        <Route path="/holdings" element={<ProtectedRoute><PageWrapper><Holdings /></PageWrapper></ProtectedRoute>} />
+        <Route path="/positions" element={<ProtectedRoute><PageWrapper><Positions /></PageWrapper></ProtectedRoute>} />
+        <Route path="/funds" element={<ProtectedRoute><PageWrapper><Funds /></PageWrapper></ProtectedRoute>} />
+        <Route path="/apps" element={<ProtectedRoute><PageWrapper><Apps /></PageWrapper></ProtectedRoute>} />
         <Route path="*" element={<PageWrapper><NotFound /></PageWrapper>} />
       </Routes>
     </AnimatePresence>

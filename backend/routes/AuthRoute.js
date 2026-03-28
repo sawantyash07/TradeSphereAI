@@ -26,7 +26,22 @@ router.post('/signup', [
     const hashedPassword = await bcrypt.hash(password, salt);
 
     user = new User({ firstName, lastName, email, mobile, password: hashedPassword });
-    await user.save();
+    const savedUser = await user.save();
+
+    // Create initial funds for new user
+    const Fund = require('../models/Fund');
+    const newUserFund = new Fund({
+        userId: savedUser._id,
+        availableMargin: 1000000.00,
+        availableCash: 1000000.00,
+        openingBalance: 1000000.00,
+        usedMargin: 0,
+        payin: 0,
+        payout: 0,
+        spanPnl: 0,
+        deliveryMargin: 0
+    });
+    await newUserFund.save();
 
     res.status(201).json({ status: 'success', message: 'Signed up successfully!' });
   } catch (err) {

@@ -1,16 +1,28 @@
 const express = require('express');
 const router = express.Router();
 const Fund = require('../models/Fund');
+const Transaction = require('../models/Transaction');
+const { isAuthenticated } = require('../middleware/auth');
 
-// GET funds
-router.get('/', async (req, res) => {
+// GET history of transactions
+router.get('/history', isAuthenticated, async (req, res) => {
   try {
-    let fund = await Fund.findOne({});
+    const userId = req.user._id;
+    const history = await Transaction.find({ userId }).sort({ date: -1 });
+    res.json(history);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch history' });
+  }
+});
+
+// GET user-specific funds
+router.get('/', isAuthenticated, async (req, res) => {
+  try {
+    const userId = req.user._id;
+    let fund = await Fund.findOne({ userId });
     
-    // Seed initial fund data if not exists
     if (!fund) {
-      fund = new Fund();
-      await fund.save();
+      return res.status(404).json({ status: 'error', message: 'Funds not initialized for user' });
     }
 
     const totalClosing = fund.openingBalance + fund.payin - fund.payout + fund.spanPnl - fund.deliveryMargin;
@@ -26,19 +38,25 @@ router.get('/', async (req, res) => {
 });
 
 // POST deposit
-router.post('/deposit', async (req, res) => {
+router.post('/deposit', isAuthenticated, async (req, res) => {
   const { amount } = req.body;
   if (!amount || amount <= 0) return res.status(400).json({ message: 'Invalid amount' });
 
   try {
-    let fund = await Fund.findOne({});
-    if (!fund) fund = new Fund();
+    const userId = req.user._id;
+    let fund = await Fund.findOne({ userId });
+    if (!fund) return res.status(404).json({ message: 'Fund record not found' });
 
     fund.availableMargin += amount;
     fund.availableCash += amount;
     fund.payin += amount;
     
     await fund.save();
+
+    // Record Transaction
+    const tx = new Transaction({ userId, type: 'DEPOSIT', amount });
+    await tx.save();
+
     res.json(fund);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -46,13 +64,14 @@ router.post('/deposit', async (req, res) => {
 });
 
 // POST withdraw
-router.post('/withdraw', async (req, res) => {
+router.post('/withdraw', isAuthenticated, async (req, res) => {
   const { amount } = req.body;
   if (!amount || amount <= 0) return res.status(400).json({ message: 'Invalid amount' });
 
   try {
-    let fund = await Fund.findOne({});
-    if (!fund) fund = new Fund();
+    const userId = req.user._id;
+    let fund = await Fund.findOne({ userId });
+    if (!fund) return res.status(404).json({ message: 'Fund record not found' });
 
     if (fund.availableCash < amount) {
       return res.status(400).json({ message: 'Insufficient funds for withdrawal' });
@@ -63,6 +82,11 @@ router.post('/withdraw', async (req, res) => {
     fund.payout += amount;
     
     await fund.save();
+
+    // Record Transaction
+    const tx = new Transaction({ userId, type: 'WITHDRAWAL', amount });
+    await tx.save();
+
     res.json(fund);
   } catch (err) {
     res.status(500).json({ message: err.message });
